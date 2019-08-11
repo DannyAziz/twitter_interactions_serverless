@@ -30,12 +30,29 @@ def index():
     )
 
     ids = []
+    load_more = True
     timeline = r.html.find(".timeline", first=True)
     if timeline:
         tweets = timeline.find("table")
-        for tweet in tweets:
-            ids.append(
-                tweet.find(".timestamp", first=True).find("a", first=True).attrs["name"].replace("tweet_", "")
-            )
+        while load_more:
+            for tweet in tweets:
+                ids.append(
+                    tweet.find(".timestamp", first=True).find("a", first=True).attrs["name"].replace("tweet_", "")
+                )
+            load_more_container = r.html.find(".w-button-more", first=True)
+            if load_more_container:
+                load_more_link = load_more_container.find("a", first=True).attrs["href"]
+                load_more_url = "https://mobile.twitter.com" + load_more_link
+                r = session.get(
+                    load_more_url,
+                    headers={
+                        'cookie': 'm5=off'
+                    }
+                )
+                timeline = r.html.find(".timeline", first=True)
+                if not timeline:
+                    load_more = False
+            else:
+                load_more = False
         return ids
     return {"error": True}
