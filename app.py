@@ -55,4 +55,8 @@ def index():
             else:
                 load_more = False
         return ids
-    return {"error": True}
+    else:
+        return Response(
+            body={"ids": []},
+            status_code=404
+        )
